@@ -11,14 +11,6 @@
 
     <artifactId>foodie-dev-pojo</artifactId>
 
-    <dependencies>
-        <!-- 通用mapper逆向工具 -->
-        <dependency>
-            <groupId>tk.mybatis</groupId>
-            <artifactId>mapper-spring-boot-starter</artifactId>
-            <version>2.1.5</version>
-        </dependency>
-    </dependencies>
 
 
 </project>

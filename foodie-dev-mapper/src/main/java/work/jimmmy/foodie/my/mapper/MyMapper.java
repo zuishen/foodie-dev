@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package work.jimmmy.foodie.mapper;
+package work.jimmmy.foodie.my.mapper;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;

@@ -48,6 +48,6 @@ mybatis:
 ############################################################
 # 通用 Mapper 配置
 mapper:
-  mappers: work.jimmmy.foodie.mapper.MyMapper
+  mappers: work.jimmmy.foodie.my.mapper.MyMapper
   not-empty: false
   identity: MYSQL
