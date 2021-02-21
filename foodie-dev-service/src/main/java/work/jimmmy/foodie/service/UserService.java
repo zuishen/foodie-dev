@@ -13,4 +13,13 @@ public interface UserService {
      * 创建用户(前端传到后端用于接收的数据体，都可以定义为BO : business object)
      */
     Users createUser(UserBo userBo);
+
+    /**
+     * 检索用户名和密码是否匹配
+     *
+     * @param username 用户名
+     * @param password 密码
+     * @return user
+     */
+    Users queryUserForLogin(String username, String password);
 }

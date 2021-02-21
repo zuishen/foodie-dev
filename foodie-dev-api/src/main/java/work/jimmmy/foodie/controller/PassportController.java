@@ -3,9 +3,16 @@ package work.jimmmy.foodie.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import work.jimmmy.foodie.pojo.Users;
 import work.jimmmy.foodie.pojo.bo.UserBo;
 import work.jimmmy.foodie.service.UserService;
+import work.jimmy.foodie.common.utils.CookieUtils;
 import work.jimmy.foodie.common.utils.JsonResultResponse;
+import work.jimmy.foodie.common.utils.JsonUtils;
+import work.jimmy.foodie.common.utils.Md5Utils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("passport")
@@ -54,7 +61,7 @@ public class PassportController {
             return JsonResultResponse.errorMsg("密码长度不能少于6");
         }
 
-        // 判断两次秘密啊是否一致
+        // 判断两次密码是否一致
         if (!password.equals(confirmPwd)) {
             return JsonResultResponse.errorMsg("两次输入的密码不一致");
         }
@@ -65,4 +72,38 @@ public class PassportController {
         return JsonResultResponse.ok();
     }
 
+    @PostMapping("/login")
+    public JsonResultResponse login(@RequestBody UserBo userBo,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response) {
+        String username = userBo.getUsername();
+        String password = userBo.getPassword();
+
+        if (StringUtils.isBlank(username) ||
+                StringUtils.isBlank(password)) {
+            return JsonResultResponse.errorMsg("用户名或密码不能为空");
+        }
+
+        Users userResult = null;
+        try {
+            userResult = userService.queryUserForLogin(username, Md5Utils.getMD5Str(password));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (userResult == null) {
+            return JsonResultResponse.errorMsg("用户名密码不匹配");
+        }
+        setNullProperty(userResult);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(userResult), true);
+        return JsonResultResponse.ok(userResult);
+    }
+
+    private void setNullProperty(Users userResult) {
+        userResult.setPassword(null);
+        userResult.setMobile(null);
+        userResult.setEmail(null);
+        userResult.setCreatedTime(null);
+        userResult.setUpdatedTime(null);
+        userResult.setBirthday(null);
+    }
 }
