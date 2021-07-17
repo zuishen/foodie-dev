@@ -1,5 +1,7 @@
 package work.jimmmy.foodie.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +16,14 @@ import work.jimmy.foodie.common.utils.Md5Utils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Api(value = "注册登录", tags = {"用于注册登录的相关接口"})
 @RestController
 @RequestMapping("passport")
 public class PassportController {
     @Autowired
     private UserService userService;
 
+    @ApiOperation(value = "用户名是否存在", notes = "用户名是否存在", httpMethod = "GET")
     @GetMapping("/usernameIsExist")
     public JsonResultResponse usernameIsExist(@RequestParam String username) {
         // 判断用户名不为空
@@ -37,8 +41,10 @@ public class PassportController {
         return JsonResultResponse.ok();
     }
 
+    // value 接口名称 notes 接口说明
+    @ApiOperation(value = "用户注册", notes = "用户注册", httpMethod = "POST")
     @PostMapping("/regist")
-    public JsonResultResponse usernameIsExist(@RequestBody UserBo userBo) {
+    public JsonResultResponse registry(@RequestBody UserBo userBo, HttpServletRequest req, HttpServletResponse resp) {
         String username = userBo.getUsername();
         String password = userBo.getPassword();
         String confirmPwd = userBo.getConfirmPassword();
@@ -66,12 +72,16 @@ public class PassportController {
             return JsonResultResponse.errorMsg("两次输入的密码不一致");
         }
 
-        userService.createUser(userBo);
+        Users userResult = userService.createUser(userBo);
+        setNullProperty(userResult);
+
+        CookieUtils.setCookie(req, resp, "user", JsonUtils.objectToJson(userResult), true);
 
         // 请求成功，用户名没有重复
         return JsonResultResponse.ok();
     }
 
+    @ApiOperation(value = "用户登录", notes = "用户登录", httpMethod = "POST")
     @PostMapping("/login")
     public JsonResultResponse login(@RequestBody UserBo userBo,
                                     HttpServletRequest request,
@@ -98,6 +108,7 @@ public class PassportController {
         return JsonResultResponse.ok(userResult);
     }
 
+    @ApiOperation(value = "用户注销", notes = "用户注销", httpMethod = "POST")
     @PostMapping("/logout")
     public JsonResultResponse logout(@RequestParam String userId, HttpServletRequest request, HttpServletResponse response) {
         // 清除用户相关信息的cookie
