@@ -2,8 +2,11 @@ package work.jimmmy.foodie.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
@@ -13,6 +16,7 @@ import work.jimmmy.foodie.service.CategoryService;
 import work.jimmy.foodie.common.enums.YesOrNo;
 import work.jimmy.foodie.common.utils.JsonResultResponse;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @Api(value = "首页", tags = "首页展示相关的接口")
@@ -46,5 +50,15 @@ public class IndexController {
     @GetMapping("/cats")
     public JsonResultResponse cats() {
         return JsonResultResponse.ok(categoryService.queryAllRootLevelCat());
+    }
+
+    @ApiOperation(value = "获取商品子分类", notes = "获取商品子分类", httpMethod = "GET")
+    @GetMapping("/subCat/{rootCatId}")
+    public JsonResultResponse subcats(@PathVariable @ApiParam(name = "rootCatId", value = "一级分类id", required = true)
+                                                  Integer rootCatId) {
+        if (rootCatId == null) {
+            return JsonResultResponse.errorMsg("分类不存在");
+        }
+        return JsonResultResponse.ok(categoryService.getSubCatList(rootCatId));
     }
 }
