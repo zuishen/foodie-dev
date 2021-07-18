@@ -1,9 +1,12 @@
 package work.jimmmy.foodie.service;
 
+import org.apache.ibatis.annotations.Param;
 import work.jimmmy.foodie.pojo.Category;
 import work.jimmmy.foodie.pojo.vo.CategoryVO;
+import work.jimmmy.foodie.pojo.vo.NewItemsVO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CategoryService {
     /**
@@ -19,4 +22,11 @@ public interface CategoryService {
      * @return LIST
      */
     List<CategoryVO> getSubCatList(Integer rootCatId);
+
+    /**
+     * 查询首页每个一级分类下的6条最新商品数据
+     * @param rootCatId rootCatId
+     * @return list
+     */
+    List<NewItemsVO> getSixNewItemLazy(Integer rootCatId);
 }

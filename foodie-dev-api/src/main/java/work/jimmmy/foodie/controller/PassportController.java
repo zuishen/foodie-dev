@@ -2,6 +2,7 @@ package work.jimmmy.foodie.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +84,8 @@ public class PassportController {
 
     @ApiOperation(value = "用户登录", notes = "用户登录", httpMethod = "POST")
     @PostMapping("/login")
-    public JsonResultResponse login(@RequestBody UserBo userBo,
+    public JsonResultResponse login(@RequestBody @ApiParam(name = "userBo", value = "用户模型", required = true)
+                                                UserBo userBo,
                                     HttpServletRequest request,
                                     HttpServletResponse response) {
         String username = userBo.getUsername();
