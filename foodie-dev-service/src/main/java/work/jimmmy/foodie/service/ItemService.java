@@ -6,6 +6,7 @@ import work.jimmmy.foodie.pojo.ItemsParam;
 import work.jimmmy.foodie.pojo.ItemsSpec;
 import work.jimmmy.foodie.pojo.vo.CommentLevelCountsVO;
 import work.jimmmy.foodie.pojo.vo.ItemCommentVO;
+import work.jimmy.foodie.common.utils.PagedGridResult;
 
 import java.util.List;
 
@@ -54,7 +55,9 @@ public interface ItemService {
      *
      * @param itemId itemId
      * @param level level
+     * @param page page
+     * @param pageSize pageSize
      * @return list
      */
-    List<ItemCommentVO> queryPagedComments(String itemId, Integer level);
+    PagedGridResult queryPagedComments(String itemId, Integer level, int page, int pageSize);
 }

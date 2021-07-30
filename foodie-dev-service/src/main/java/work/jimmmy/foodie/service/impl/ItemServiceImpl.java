@@ -1,5 +1,7 @@
 package work.jimmmy.foodie.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,6 +13,8 @@ import work.jimmmy.foodie.pojo.vo.CommentLevelCountsVO;
 import work.jimmmy.foodie.pojo.vo.ItemCommentVO;
 import work.jimmmy.foodie.service.ItemService;
 import work.jimmy.foodie.common.enums.CommentLevel;
+import work.jimmy.foodie.common.utils.DesensitizationUtil;
+import work.jimmy.foodie.common.utils.PagedGridResult;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,12 +89,18 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemCommentVO> queryPagedComments(String itemId, Integer level) {
+    public PagedGridResult queryPagedComments(String itemId, Integer level, int page, int pageSize) {
         Map<String, Object> map = new HashMap<>();
         map.put("itemId", itemId);
         map.put("level", level);
-        List<ItemCommentVO> vos = itemsCommentsCustomMapper.queryItemComments(map);
-        return vos;
+        // page 第几页，pageSize 每页显示的条数
+        PageHelper.startPage(page, pageSize);
+        List<ItemCommentVO> list = itemsCommentsCustomMapper.queryItemComments(map);
+        for (ItemCommentVO vo : list) {
+            vo.setNickname(DesensitizationUtil.commonDisplay(vo.getNickname()));
+        }
+
+        return setPagedGrid(list, page);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -101,5 +111,15 @@ public class ItemServiceImpl implements ItemService {
             condition.setCommentLevel(commentLevel);
         }
         return itemsCommentsMapper.selectCount(condition);
+    }
+
+    private PagedGridResult setPagedGrid(List<?> list, Integer page) {
+        PageInfo<?> pageList = new PageInfo<>(list);
+        PagedGridResult grid = new PagedGridResult();
+        grid.setPage(page);
+        grid.setRows(list);
+        grid.setTotal(pageList.getPages());
+        grid.setRecords(pageList.getTotal());
+        return grid;
     }
 }
