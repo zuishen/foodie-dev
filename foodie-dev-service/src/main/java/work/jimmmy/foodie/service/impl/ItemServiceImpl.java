@@ -11,6 +11,7 @@ import work.jimmmy.foodie.mapper.*;
 import work.jimmmy.foodie.pojo.*;
 import work.jimmmy.foodie.pojo.vo.CommentLevelCountsVO;
 import work.jimmmy.foodie.pojo.vo.ItemCommentVO;
+import work.jimmmy.foodie.pojo.vo.SearchItemsVO;
 import work.jimmmy.foodie.service.ItemService;
 import work.jimmy.foodie.common.enums.CommentLevel;
 import work.jimmy.foodie.common.utils.DesensitizationUtil;
@@ -36,6 +37,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     ItemsCommentsMapper itemsCommentsMapper;
+
+    @Autowired
+    ItemsMapperCustom itemsMapperCustom;
 
     @Autowired
     ItemsCommentsCustomMapper itemsCommentsCustomMapper;
@@ -100,6 +104,28 @@ public class ItemServiceImpl implements ItemService {
             vo.setNickname(DesensitizationUtil.commonDisplay(vo.getNickname()));
         }
 
+        return setPagedGrid(list, page);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult searchItems(String keywords, String sort, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("keywords", keywords);
+        map.put("sort", sort);
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemsVO> list = itemsMapperCustom.searchItems(map);
+        return setPagedGrid(list, page);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult searchItems(Integer catId, String sort, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("catId", catId);
+        map.put("sort", sort);
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemsVO> list = itemsMapperCustom.searchItemsBy3rdCat(map);
         return setPagedGrid(list, page);
     }
 
