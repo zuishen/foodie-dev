@@ -5,7 +5,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 import work.jimmmy.foodie.mapper.ItemsCommentsMapper;
 import work.jimmmy.foodie.pojo.Items;
 import work.jimmmy.foodie.pojo.ItemsImg;
@@ -131,5 +133,20 @@ public class ItemsController extends BaseController {
         }
         PagedGridResult grid = itemService.searchItems(catId, sort, page, pageSize);
         return JsonResultResponse.ok(grid);
+    }
+
+    /**
+     * 用于用户长时间未登录网站，刷新购物车中的数据（主要是商品价格），类似淘宝京东
+     * @return
+     */
+    @ApiOperation(value = "根据商品规格ids查找最新的商品数据", notes = "根据商品规格ids查找最新的商品数据")
+    @RequestMapping("/refresh")
+    public JsonResultResponse cartItems(
+            @ApiParam(name = "itemSpecIds", value = "拼接的规格ids", required = true, example = "1001,1003,1005")
+            @RequestParam String itemSpecIds) {
+        if (StringUtils.isBlank(itemSpecIds)) {
+            return JsonResultResponse.ok();
+        }
+        return JsonResultResponse.ok(itemService.queryItemsBySpecIds(itemSpecIds));
     }
 }

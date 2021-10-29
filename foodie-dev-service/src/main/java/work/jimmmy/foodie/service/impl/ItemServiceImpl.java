@@ -12,14 +12,13 @@ import work.jimmmy.foodie.pojo.*;
 import work.jimmmy.foodie.pojo.vo.CommentLevelCountsVO;
 import work.jimmmy.foodie.pojo.vo.ItemCommentVO;
 import work.jimmmy.foodie.pojo.vo.SearchItemsVO;
+import work.jimmmy.foodie.pojo.vo.ShopCartVo;
 import work.jimmmy.foodie.service.ItemService;
 import work.jimmy.foodie.common.enums.CommentLevel;
 import work.jimmy.foodie.common.utils.DesensitizationUtil;
 import work.jimmy.foodie.common.utils.PagedGridResult;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -127,6 +126,15 @@ public class ItemServiceImpl implements ItemService {
         PageHelper.startPage(page, pageSize);
         List<SearchItemsVO> list = itemsMapperCustom.searchItemsBy3rdCat(map);
         return setPagedGrid(list, page);
+    }
+
+    @Override
+    public List<ShopCartVo> queryItemsBySpecIds(String specIds) {
+        String[] ids = specIds.split(",");
+        List<String> specIdsList = new ArrayList<>();
+        Collections.addAll(specIdsList, ids);
+
+        return itemsMapperCustom.queryItemsBySpecIds(specIdsList);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)

@@ -77,6 +77,8 @@ public class PassportController {
         setNullProperty(userResult);
 
         CookieUtils.setCookie(req, resp, "user", JsonUtils.objectToJson(userResult), true);
+        // TODO: 生成用户token，存入redis会话
+        // TODO: 同步购物车数据
 
         // 请求成功，用户名没有重复
         return JsonResultResponse.ok();
@@ -105,8 +107,14 @@ public class PassportController {
         if (userResult == null) {
             return JsonResultResponse.errorMsg("用户名密码不匹配");
         }
+
         setNullProperty(userResult);
+
         CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(userResult), true);
+
+        // TODO: 生成用户token，存入redis会话
+        // TODO: 同步购物车数据
+
         return JsonResultResponse.ok(userResult);
     }
 
