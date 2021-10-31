@@ -83,4 +83,34 @@ public class AddressController {
         }
         return JsonResultResponse.ok();
     }
+
+    @ApiOperation(value = "用户修改地址", notes = "用户修改地址", httpMethod = "POST")
+    @PostMapping("/update")
+    public JsonResultResponse update(@RequestBody AddressBo addressBo) {
+        if (StringUtils.isBlank(addressBo.getAddressId())) {
+            return JsonResultResponse.errorMsg("修改地址错误：addressId不能为空");
+        }
+        addressService.updateUserAddress(addressBo);
+        return JsonResultResponse.ok();
+    }
+
+    @ApiOperation(value = "用户删除地址", notes = "用户删除地址", httpMethod = "POST")
+    @PostMapping("/delete")
+    public JsonResultResponse update(@RequestParam String userId, @RequestParam String addressId) {
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(addressId)) {
+            return JsonResultResponse.errorMsg("");
+        }
+        addressService.deleteUserAddress(userId, addressId);
+        return JsonResultResponse.ok();
+    }
+
+    @ApiOperation(value = "用户设置默认地址", notes = "用户设置默认地址", httpMethod = "POST")
+    @PostMapping("/setDefalut")
+    public JsonResultResponse setDefault(@RequestParam String userId, @RequestParam String addressId) {
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(addressId)) {
+            return JsonResultResponse.errorMsg("");
+        }
+        addressService.updateUserAddressToBeDefault(userId, addressId);
+        return JsonResultResponse.ok();
+    }
 }

@@ -20,4 +20,27 @@ public interface AddressService {
      * @param addressBo addressBo
      */
     void addNewUserAddress(AddressBo addressBo);
+
+    /**
+     * 用户修改地址
+     *
+     * @param addressBo addressBo
+     */
+    void updateUserAddress(AddressBo addressBo);
+
+    /**
+     * 删除根据用户id和收货地址id删除收货地址
+     *
+     * @param userId userId
+     * @param addressId addressId
+     */
+    void deleteUserAddress(String userId, String addressId);
+
+    /**
+     * 将传入的地址设为默认地址
+     *
+     * @param userId userId
+     * @param addressId addressId
+     */
+    void updateUserAddressToBeDefault(String userId, String addressId);
 }

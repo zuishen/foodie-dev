@@ -11,6 +11,7 @@ import work.jimmmy.foodie.mapper.UserAddressMapper;
 import work.jimmmy.foodie.pojo.UserAddress;
 import work.jimmmy.foodie.pojo.bo.AddressBo;
 import work.jimmmy.foodie.service.AddressService;
+import work.jimmy.foodie.common.enums.YesOrNo;
 
 import java.util.Date;
 import java.util.List;
@@ -36,7 +37,7 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public void addNewUserAddress(AddressBo addressBo) {
         // 1.判断当前用户是否存在地址，如果没有则新增为默认地址
-        List<UserAddress> addressList = this.queryAll(addressBo.getAddressId());
+        List<UserAddress> addressList = this.queryAll(addressBo.getUserId());
         int isDefault = 0;
         if (addressList == null || addressList.isEmpty()) {
             isDefault = 1;
@@ -49,5 +50,46 @@ public class AddressServiceImpl implements AddressService {
         newAddress.setCreatedTime(new Date());
         newAddress.setUpdatedTime(new Date());
         userAddressMapper.insert(newAddress);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void updateUserAddress(AddressBo addressBo) {
+        String addressId = addressBo.getAddressId();
+        UserAddress pendingAddress = new UserAddress();
+        BeanUtils.copyProperties(addressBo, pendingAddress);
+        pendingAddress.setId(addressId);
+        pendingAddress.setUpdatedTime(new Date());
+        // 不更新值为null的属性，updateByPrimaryKey
+        userAddressMapper.updateByPrimaryKeySelective(pendingAddress);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void deleteUserAddress(String userId, String addressId) {
+        UserAddress userAddress = new UserAddress();
+        userAddress.setUserId(userId);
+        userAddress.setId(addressId);
+        userAddressMapper.deleteByPrimaryKey(userAddress);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void updateUserAddressToBeDefault(String userId, String addressId) {
+        // 1.查找默认地址，设置为不默认
+        UserAddress queryAddress = new UserAddress();
+        queryAddress.setUserId(userId);
+        queryAddress.setIsDefault(YesOrNo.YES.type);
+        List<UserAddress> list = userAddressMapper.select(queryAddress);
+        for (UserAddress userAddress : list) {
+            userAddress.setIsDefault(YesOrNo.NO.type);
+            userAddressMapper.updateByPrimaryKeySelective(userAddress);
+        }
+        // 2.根据地址id修改为默认地址
+        UserAddress defaultAddress = new UserAddress();
+        defaultAddress.setId(addressId);
+        defaultAddress.setUserId(userId);
+        defaultAddress.setIsDefault(YesOrNo.YES.type);
+        userAddressMapper.updateByPrimaryKeySelective(defaultAddress);
     }
 }
