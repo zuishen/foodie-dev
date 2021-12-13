@@ -15,6 +15,7 @@ import work.jimmmy.foodie.pojo.vo.SearchItemsVO;
 import work.jimmmy.foodie.pojo.vo.ShopCartVo;
 import work.jimmmy.foodie.service.ItemService;
 import work.jimmy.foodie.common.enums.CommentLevel;
+import work.jimmy.foodie.common.enums.YesOrNo;
 import work.jimmy.foodie.common.utils.DesensitizationUtil;
 import work.jimmy.foodie.common.utils.PagedGridResult;
 
@@ -42,6 +43,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Autowired
     ItemsCommentsCustomMapper itemsCommentsCustomMapper;
+
+    @Autowired
+    ItemsImgMapper itemsImgMapper;
 
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
@@ -145,6 +149,43 @@ public class ItemServiceImpl implements ItemService {
             condition.setCommentLevel(commentLevel);
         }
         return itemsCommentsMapper.selectCount(condition);
+    }
+
+    @Transactional(propagation =  Propagation.SUPPORTS)
+    @Override
+    public ItemsSpec queryItemSpecById(String specId) {
+        return itemsSpecMapper.selectByPrimaryKey(specId);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public String queryItemMainImgById(String itemId) {
+        ItemsImg itemsImg = new ItemsImg();
+        itemsImg.setItemId(itemId);
+        itemsImg.setIsMain(YesOrNo.YES.type);
+        ItemsImg result = itemsImgMapper.selectOne(itemsImg);
+        return result != null ? result.getUrl() : "";
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void decreaseItemSpecStock(String specId, int buyCounts) {
+        // synchronized 不推荐使用，集群下无用，性能低下
+        // 锁数据库：不推荐，导致数据库性能地下
+        // 分布式锁 zookeeper / redis
+
+
+        // 1. 查询库存
+        int stock = 10;
+        // lockUtil.getLock(); -- 加锁
+        if (stock - buyCounts < 0) {
+            // 提示库存不够
+        }
+        // lockUtil.unLock(); -- 解锁
+        int result = itemsMapperCustom.decreaseItemSpecStock(specId, buyCounts);
+        if (result != 1) {
+            throw new RuntimeException("订单创建失败，原因：库存不足");
+        }
     }
 
     private PagedGridResult setPagedGrid(List<?> list, Integer page) {
