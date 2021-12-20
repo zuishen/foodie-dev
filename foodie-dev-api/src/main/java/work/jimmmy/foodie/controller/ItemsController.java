@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.spring.web.json.Json;
-import work.jimmmy.foodie.mapper.ItemsCommentsMapper;
 import work.jimmmy.foodie.pojo.Items;
 import work.jimmmy.foodie.pojo.ItemsImg;
 import work.jimmmy.foodie.pojo.ItemsParam;
@@ -79,7 +76,7 @@ public class ItemsController extends BaseController {
             page = 1;
         }
         if (pageSize == null) {
-            pageSize = COMMENT_PAGE_SIZE;
+            pageSize = COMMON_PAGE_SIZE;
         }
         PagedGridResult grid = itemService.queryPagedComments(itemId, level, page, pageSize);
         return JsonResultResponse.ok(grid);

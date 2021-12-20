@@ -1,18 +1,16 @@
-package work.jimmmy.foodie.pojo.bo;
+package work.jimmmy.foodie.pojo.bo.center;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Getter
 @Setter
 @ApiModel(value = "用户对象BO", description = "从客户端，由对象传如的数据封装在此entity中")
-public class UserBo {
+public class CenterUserBo {
     @ApiModelProperty(value = "用户名", name = "username", example = "imooc", required = true)
     private String username;
 
