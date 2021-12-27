@@ -1,6 +1,7 @@
 package work.jimmmy.foodie.service.center;
 
 import work.jimmmy.foodie.pojo.Orders;
+import work.jimmmy.foodie.pojo.vo.OrderStatusCountsVo;
 import work.jimmy.foodie.common.utils.PagedGridResult;
 
 public interface MyOrdersService {
@@ -44,4 +45,22 @@ public interface MyOrdersService {
      * @return
      */
     boolean deleteOrder(String userId, String orderId);
+
+    /**
+     * 查询用户订单数
+     *
+     * @param userId
+     * @return
+     */
+    OrderStatusCountsVo getOrderStatusCounts(String userId);
+
+    /**
+     * 获得分页的订单动向
+     *
+     * @param userId
+     * @param page
+     * @param pageSize
+     * @return
+     */
+    PagedGridResult getOrdersTrend(String userId, Integer page, Integer pageSize);
 }

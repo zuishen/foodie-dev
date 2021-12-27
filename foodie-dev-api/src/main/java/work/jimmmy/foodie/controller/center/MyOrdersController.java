@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.spring.web.json.Json;
 import work.jimmmy.foodie.controller.BaseController;
 import work.jimmmy.foodie.pojo.Orders;
+import work.jimmmy.foodie.pojo.vo.OrderStatusCountsVo;
 import work.jimmmy.foodie.service.center.MyOrdersService;
 import work.jimmy.foodie.common.utils.JsonResultResponse;
 import work.jimmy.foodie.common.utils.PagedGridResult;
@@ -19,11 +20,21 @@ import work.jimmy.foodie.common.utils.PagedGridResult;
 @RequestMapping("myorders")
 public class MyOrdersController extends BaseController {
 
-    @Autowired
-    private MyOrdersService myOrdersService;
+    @ApiOperation(value = "获得订单状态书概况", notes = "获得订单状态数概况", httpMethod = "POST")
+    @PostMapping("/statusCounts")
+    public JsonResultResponse statusCounts(
+            @ApiParam(name = "userId", value = "用户id", required = true)
+            @RequestParam String userId) {
+        if (StringUtils.isBlank(userId)) {
+            return JsonResultResponse.errorMsg(null);
+        }
+        OrderStatusCountsVo orderStatusCounts = myOrdersService.getOrderStatusCounts(userId);
+        return JsonResultResponse.ok(orderStatusCounts);
+    }
 
-    @PostMapping("query")
-    public JsonResultResponse queryMyOrders(
+    @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "POST")
+    @PostMapping("/query")
+    public JsonResultResponse query(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam String userId,
             @ApiParam(name = "orderStatus", value = "订单状态", required = false)
@@ -96,18 +107,25 @@ public class MyOrdersController extends BaseController {
         return JsonResultResponse.ok();
     }
 
-    /**
-     * 用于验证用户和订单是否有关联关系，避免非凡用户调用
-     *
-     * @param userId
-     * @param orderId
-     * @return
-     */
-    private JsonResultResponse checkUserOrder(String userId, String orderId) {
-        Orders orders = myOrdersService.queryMyOrder(userId, orderId);
-        if (orders == null) {
-            return JsonResultResponse.errorMsg("订单不存在");
+    @ApiOperation(value = "查询订单动向", notes = "查询订单动向", httpMethod = "POST")
+    @PostMapping("/trend")
+    public JsonResultResponse trend(
+            @ApiParam(name = "userId", value = "用户id", required = true)
+            @RequestParam String userId,
+            @ApiParam(name = "page", value = "查询下一页的第几页", required = false)
+            @RequestParam Integer page,
+            @ApiParam(name = "pageSize", value = "分页的每一页现实的条数", required = false)
+            @RequestParam Integer pageSize) {
+        if (StringUtils.isBlank(userId)) {
+            return JsonResultResponse.errorMsg(null);
         }
-        return JsonResultResponse.ok();
+        if (page == null) {
+            page = 1;
+        }
+        if (pageSize == null) {
+            pageSize = COMMON_PAGE_SIZE;
+        }
+        PagedGridResult grid = myOrdersService.getOrdersTrend(userId, page, pageSize);
+        return JsonResultResponse.ok(grid);
     }
 }

@@ -1,5 +1,6 @@
 package work.jimmmy.foodie.service.impl.center;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,9 @@ import work.jimmmy.foodie.mapper.OrdersMapperCustom;
 import work.jimmmy.foodie.pojo.OrderStatus;
 import work.jimmmy.foodie.pojo.Orders;
 import work.jimmmy.foodie.pojo.vo.MyOrdersVo;
+import work.jimmmy.foodie.pojo.vo.OrderStatusCountsVo;
 import work.jimmmy.foodie.service.center.MyOrdersService;
+import work.jimmmy.foodie.service.impl.BaseService;
 import work.jimmy.foodie.common.enums.OrderStatusEnum;
 import work.jimmy.foodie.common.enums.YesOrNo;
 import work.jimmy.foodie.common.utils.PagedGridResult;
@@ -24,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MyOrdersServiceImpl implements MyOrdersService {
+public class MyOrdersServiceImpl extends BaseService implements MyOrdersService {
     @Autowired
     private OrdersMapperCustom ordersMapperCustom;
 
@@ -45,7 +48,7 @@ public class MyOrdersServiceImpl implements MyOrdersService {
         PageHelper.startPage(page, pageSize);
         List<MyOrdersVo> list = ordersMapperCustom.queryMyOrders(map);
 
-        return setterPagedGrid(list, page);
+        return setPagedGrid(list, page);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -106,14 +109,37 @@ public class MyOrdersServiceImpl implements MyOrdersService {
         return result == 1;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public OrderStatusCountsVo getOrderStatusCounts(String userId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("orderStatus", OrderStatusEnum.WAIT_PAY.type);
 
-    private PagedGridResult setterPagedGrid(List<?> list, Integer page) {
-        PageInfo<?> pageList = new PageInfo<>(list);
-        PagedGridResult gridResult = new PagedGridResult();
-        gridResult.setPage(page);
-        gridResult.setRows(list);
-        gridResult.setTotal(pageList.getPages());
-        gridResult.setRecords(pageList.getTotal());
-        return gridResult;
+        int waitPayCounts = ordersMapperCustom.getMyOrderStatusCounts(map);
+
+        map.put("orderStatus", OrderStatusEnum.WAIT_DELIVER.type);
+        int waitDeliverCounts = ordersMapperCustom.getMyOrderStatusCounts(map);
+
+        map.put("orderStatus", OrderStatusEnum.WAIT_RECEIVE.type);
+        int waitReceiveCounts = ordersMapperCustom.getMyOrderStatusCounts(map);
+
+        map.put("orderStatus", OrderStatusEnum.SUCCESS.type);
+        map.put("isComment", YesOrNo.NO.type);
+        int waitCommentCounts = ordersMapperCustom.getMyOrderStatusCounts(map);
+
+        return new OrderStatusCountsVo(waitPayCounts, waitDeliverCounts, waitReceiveCounts, waitCommentCounts);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult getOrdersTrend(String userId, Integer page, Integer pageSize) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        PageHelper.startPage(page, pageSize);
+        List<OrderStatus> list = ordersMapperCustom.getMyOrderTrend(map);
+
+        return setPagedGrid(list, page);
     }
 }
